@@ -63,7 +63,6 @@ def conv2d(in_channels, out_channels, kernel_size, stride, padding_type='same', 
     )
 
     # COMMENT BatchNorm before ReLU
-
     if include_batchnorm:
         sequential.add_module(
             name='batch_norm',
