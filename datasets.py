@@ -144,16 +144,15 @@ class MPII_dataset(data.Dataset):
         for i in range(self.num_joints):
             if heatmaps_joints[i, 0] > 0 and heatmaps_joints[i, 1] > 0:
                 heatmaps_joints[i, 0:2] = util_image.transform(heatmaps_joints[i, 0:2] + 1, center, scale, [self.output_shape, self.output_shape], rot=rotation)
-                heatmaps[i, :, :], vis = util_image.draw_labelmap(heatmaps[i, :, :], heatmaps_joints[i, 0:2] - 1,
+                heatmaps[i, :, :], vis = util_image.draw_labelmap(heatmaps[i, :, :], heatmaps_joints[i, 0:2],
                                                                         self.sigma, type='Gaussian')
                 joint_visibility[i, 0] *= vis
-
-        # util_plot.plot_input(_input, center, transformed_joints, heatmaps)
 
         _input = torch.from_numpy(_input)
         heatmaps = torch.from_numpy(heatmaps)
 
         meta = {
+            'img_paths': image_filename,
             'index': index,
             'center': center,
             'scale': scale,
@@ -162,6 +161,8 @@ class MPII_dataset(data.Dataset):
             'heatmaps_joints': heatmaps_joints,
             'label_weights': joint_visibility
         }
+
+        # util_plot.plot_dataset_example(_input, meta , heatmaps)
 
         return _input, heatmaps, meta
 

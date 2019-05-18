@@ -36,7 +36,7 @@ def transform(pt, center, scale, res, invert=0, rot=0):
         t = np.linalg.inv(t)
     new_pt = np.array([pt[0], pt[1], 1.]).T
     new_pt = np.dot(t, new_pt)
-    return new_pt[:2].astype(int)
+    return np.round(new_pt)[:2].astype(int)
 
 
 def crop(img, center, scale, res, rot=0):
@@ -112,7 +112,6 @@ def draw_labelmap(img, pt, sigma, type='Gaussian'):
         g = np.exp(- ((x - x0) ** 2 + (y - y0) ** 2) / (2 * sigma ** 2))
     elif type == 'Cauchy':
         g = sigma / (((x - x0) ** 2 + (y - y0) ** 2 + sigma ** 2) ** 1.5)
-
 
     # Usable gaussian range
     g_x = max(0, -ul[0]), min(br[0], img.shape[1]) - ul[0]

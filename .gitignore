@@ -1,6 +1,10 @@
 images/*
+_images/*
+checkpoint.pth
+logger.csv
 
 .DS_Store
 .idea
 
 __pycache__/
+

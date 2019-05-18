@@ -3,56 +3,44 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torch.optim.rmsprop import RMSprop
+from torch.optim.adam import Adam
 
 
 def save_model(
         model,
         optimizer,
-        lr,
-        batch_size,
-        input_dim,
-        output_dim,
-        total_epochs,
-        current_epoch,
-        current_step,
-        num_channels,
-        num_classes,
-        num_stacks,
-        threshold,
-        save_path='checkpoint.pth'):
+        args_dict,
+        saved_model_path='checkpoint.pth'):
 
+    print('Saving model and optimizer states with metadata...')
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'lr': lr,
-        'batch_size': batch_size,
-        'input_dim': input_dim,
-        'output_dim': output_dim,
-        'total_epochs': total_epochs,
-        'current_epoch': current_epoch,
-        'current_step': current_step,
-        'num_channels': num_channels,
-        'num_stacks': num_stacks,
-        'num_classes': num_classes,
-        'threshold': threshold
-    }, save_path)
+        'args_dict': args_dict
+    }, saved_model_path)
+    print('DONE')
 
 
 def load_model(load_path='checkpoint.pth'):
+    print('Loading model and optimizer states with metadata...')
     checkpoint = torch.load(load_path)
 
     model = HourglassNetwork(
-        num_channels=checkpoint['num_channels'],
-        num_stacks=checkpoint['num_stacks'],
-        num_classes=checkpoint['num_classes'],
-        input_shape=(checkpoint['input_dim'], checkpoint['input_dim'], 3)
+        num_channels=checkpoint['args_dict']['channels'],
+        num_stacks=checkpoint['args_dict']['stacks'],
+        num_classes=checkpoint['args_dict']['joints'],
+        input_shape=(checkpoint['args_dict']['input_dim'], checkpoint['args_dict']['input_dim'], 3)
     )
-    optimizer = RMSprop(model.parameters(), checkpoint['lr'])
+    device = torch.device(checkpoint['args_dict']['device'])
+    model = torch.nn.DataParallel(model).to(device).double()
+    optimizer = Adam(model.parameters(), checkpoint['args_dict']['lr'])
 
     model.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
-    return model, optimizer, checkpoint['batch_size'], checkpoint['input_dim'],
+    print('DONE')
+
+    return device, model, optimizer, checkpoint['args_dict']
 
 
 def conv2d(in_channels, out_channels, kernel_size, stride, padding_type='same', activation='', include_batchnorm=False):

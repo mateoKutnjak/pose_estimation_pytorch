@@ -35,3 +35,21 @@ def plot_result_by_input(batch_index, batch_input, batch_meta, batch_joint_dista
                 ax[i, j].title.set_text('No ground truth joint')
 
     plt.show()
+
+
+def plot_dataset_example(input_image, metadata, heatmaps):
+    fig, ax = plt.subplots(nrows=4, ncols=5)
+
+    image = input_image.data.numpy()
+    transformed_joints = metadata['transformed_joints']
+    heatmaps_joints = metadata['heatmaps_joints']
+
+    ax[0, 0].imshow(np.transpose(image, (1, 2, 0)))
+    ax[0, 0].scatter(transformed_joints[:, 0], transformed_joints[:, 1])
+
+    for i in range(0, 4):
+        for j in range(1, 5):
+            ax[i, j].imshow(heatmaps[i * 4 + j - 1, :, :])
+            ax[i, j].scatter(heatmaps_joints[i * 4 + j - 1, 0], heatmaps_joints[i * 4 + j - 1, 1], s=5, c='w')
+
+    plt.show()

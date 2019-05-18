@@ -38,6 +38,7 @@ def joint_distance_accuracy(distances, threshold):
     # COMMENT counts distances for each joint which are le(threshold) and > 0
     inside_threshold = torch.sum(distances.le(threshold) * distances.ge(0), dim=0)
     # COMMENT counts valid distances for each joint (where value is > 0)
+
     valid = distances.shape[0] - torch.sum(distances.lt(0), dim=0)
 
     # COMMENT percentage of valid batch joints inside threshold

@@ -9,7 +9,7 @@ class CSVLogger(object):
 
         self.headers = ['epoch', 'step', 'loss', 'accuracy_per_joint', 'average_accuracy']
 
-    def log(self, epoch, step, loss, accuracy_per_joint, average_accuracy):
+    def log(self, epoch, total_epochs, step, total_steps, iter_type, loss, accuracy_per_joint, average_accuracy):
         mode = 'a' if os.path.exists(self.logger_path) else 'w'
 
         with open(self.logger_path, mode) as csvfile:
@@ -18,10 +18,11 @@ class CSVLogger(object):
             if mode == 'w':
                 writer.writerow([
                     'Time',
+                    'Type',
                     'Epoch',
                     'Step',
                     'Loss',
-                    'Average accuracy',
+                    'Average_accuracy',
                     'R_Ankle',
                     'R_Knee',
                     'R_Hip',
@@ -43,9 +44,10 @@ class CSVLogger(object):
             accuracy_per_joint.double()
 
             writer.writerow([
-                datetime.datetime.now().strftime("%H:%M:%S %d.%m.%Y"),
-                epoch,
-                step,
+                datetime.datetime.now().strftime("%H:%M:%S_%d.%m.%Y"),
+                iter_type,
+                "[" + str(epoch) + "/" + str(total_epochs) + "]",
+                "[" + str(step) + "/" + str(total_steps) + "]",
                 "{0:.8f}".format(loss.item()),
                 "{0:.4f}".format(average_accuracy),
                 "{0:.3f}".format(accuracy_per_joint[0].item()),
