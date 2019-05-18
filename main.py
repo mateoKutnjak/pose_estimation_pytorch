@@ -19,6 +19,8 @@ import loggers
 def main(args):
     args_dict = vars(args)
 
+    print(args_dict)
+
     if args_dict['saved_model'] is not None and os.path.exists(args_dict['saved_model']):
         device, model, optimizer, saved_args_dict = models.load_model(args_dict['saved_model'])
         args_dict = saved_args_dict
