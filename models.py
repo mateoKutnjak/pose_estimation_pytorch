@@ -43,7 +43,6 @@ def load_model(load_path='checkpoint.pth'):
     return device, model, optimizer, checkpoint['args_dict']
 
 
-
 def conv2d(in_channels, out_channels, kernel_size, stride, padding_type='same', activation='', include_batchnorm=False):
     if padding_type == 'same':
         padding = (kernel_size-1) // 2
