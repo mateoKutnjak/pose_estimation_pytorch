@@ -9,19 +9,18 @@ from torch.optim.adam import Adam
 def save_model(
         model,
         optimizer,
-        args_dict,
-        saved_model_path='checkpoint.pth'):
+        args_dict):
 
     print('Saving model and optimizer states with metadata...')
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'args_dict': args_dict
-    }, saved_model_path)
+    }, args_dict['saved_model'])
     print('DONE')
 
 
-def load_model(load_path='checkpoint.pth'):
+def load_model(load_path):
     print('Loading model and optimizer states with metadata...')
     checkpoint = torch.load(load_path)
 
