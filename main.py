@@ -5,7 +5,6 @@ import torch.nn
 from torch.utils.data import DataLoader
 from torch.optim.rmsprop import RMSprop
 from torch.optim.adam import Adam
-from torchsummary import summary
 import argparse
 
 import models
@@ -31,8 +30,10 @@ def main(args):
             num_classes=args.joints,
             input_shape=(args.input_dim, args.input_dim, 3)
         )
+        print(torch.cuda.device_count(), "GPUs available.")
+
         device = torch.device(args_dict['device'])
-        model = torch.nn.DataParallel(model).to(device).double()
+        model = model.to(device).double()
         optimizer = Adam(model.parameters(), lr=args.lr)
 
     mpii_train = datasets.MPII_dataset(
@@ -64,6 +65,14 @@ def main(args):
     for epoch in range(args_dict.get('epoch_to_start', 0), args_dict['epochs']):
 
         model.train()
+
+        if epoch == 60-1 or epoch == 90-1:
+            for param_group in optimizer.param_groups:
+                param_group['lr'] *= 0.1
+                args_dict['lr'] = param_group['lr']
+                print("Learning rate changed to", args_dict['lr'])
+        else:
+            print("Learning rate stayed the same", args_dict['lr'])
 
         for i, (input_batch, output_batch, meta_batch) in enumerate(train_dataloader):
 
@@ -123,17 +132,26 @@ def main(args):
 
         args_dict['epoch_to_start'] = epoch+1
 
+        if epoch % 5 == 0:
+            models.save_model(
+                model=model,
+                optimizer=optimizer,
+                args_dict=args_dict,
+                save_path=args_dict['saved_path'] + str(epoch)
+            )
+
         models.save_model(
             model=model,
             optimizer=optimizer,
-            args_dict=args_dict
+            args_dict=args_dict,
+            save_path=args_dict['saved_model']
         )
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--device', type=str, default='cpu', help='device (cpu/cuda)')
+    parser.add_argument('--device', type=str, default='cuda', help='device (cpu/cuda)')
     parser.add_argument('--lr', type=float, default=2.5e-4, help='learning rate')
     parser.add_argument('--batch_size', type=int, default=8, help='batch size')
     parser.add_argument('--input_dim', type=int, default=256, help='input dimension')

@@ -9,14 +9,15 @@ from torch.optim.adam import Adam
 def save_model(
         model,
         optimizer,
-        args_dict):
+        args_dict,
+        save_path):
 
     print('Saving model and optimizer states with metadata...')
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'args_dict': args_dict
-    }, args_dict['saved_model'])
+    }, save_path)
     print('DONE')
 
 
@@ -41,6 +42,22 @@ def load_model(load_path):
 
     return device, model, optimizer, checkpoint['args_dict']
 
+
+def load_demo_model(load_path, device):
+    print('Loading model and optimizer states with metadata...')
+    checkpoint = torch.load(load_path, map_location={'cuda:0': 'cpu'})
+
+    model = HourglassNetwork(
+        num_channels=checkpoint['args_dict']['channels'],
+        num_stacks=checkpoint['args_dict']['stacks'],
+        num_classes=checkpoint['args_dict']['joints'],
+        input_shape=(checkpoint['args_dict']['input_dim'], checkpoint['args_dict']['input_dim'], 3)
+    )
+
+    model = torch.nn.DataParallel(model).to(device).double()
+    model.load_state_dict(checkpoint['model_state_dict'])
+
+    return model, checkpoint['args_dict']
 
 def conv2d(in_channels, out_channels, kernel_size, stride, padding_type='same', activation='', include_batchnorm=False):
     if padding_type == 'same':
