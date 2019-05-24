@@ -1,13 +1,13 @@
 import os
 import csv
 import datetime
+import pandas as pd
 
 
 class CSVLogger(object):
+
     def __init__(self, logger_path='logger.csv'):
         self.logger_path = logger_path
-
-        self.headers = ['epoch', 'step', 'loss', 'accuracy_per_joint', 'average_accuracy']
 
     def log(self, epoch, total_epochs, step, total_steps, iter_type, loss, accuracy_per_joint, average_accuracy):
         mode = 'a' if os.path.exists(self.logger_path) else 'w'
@@ -67,3 +67,9 @@ class CSVLogger(object):
                 "{0:.3f}".format(accuracy_per_joint[14].item()),
                 "{0:.3f}".format(accuracy_per_joint[15].item())
             ])
+
+    def plot_data(self, avg_acc=True, avg_acc_joint=True, loss=True, avg_time=True):
+        df = pd.read_csv(self.logger_path)
+
+        import pdb
+        pdb.set_trace()

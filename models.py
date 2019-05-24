@@ -32,7 +32,7 @@ def load_model(load_path):
         input_shape=(checkpoint['args_dict']['input_dim'], checkpoint['args_dict']['input_dim'], 3)
     )
     device = torch.device(checkpoint['args_dict']['device'])
-    model = torch.nn.DataParallel(model).to(device).double()
+    model = model.to(device).double()
     optimizer = Adam(model.parameters(), checkpoint['args_dict']['lr'])
 
     model.load_state_dict(checkpoint['model_state_dict'])
@@ -54,7 +54,7 @@ def load_demo_model(load_path, device):
         input_shape=(checkpoint['args_dict']['input_dim'], checkpoint['args_dict']['input_dim'], 3)
     )
 
-    model = torch.nn.DataParallel(model).to(device).double()
+    model = model.to(device).double()
     model.load_state_dict(checkpoint['model_state_dict'])
 
     return model, checkpoint['args_dict']
